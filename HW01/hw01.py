@@ -108,6 +108,9 @@ class PassovnaMatrika():
     def __setitem__(self, index, e):
         self.setindex(index[0], index[1], e)
 
+    def __mul__(self, b):
+        return self.mat_mul(b)
+
 
 class ZgornjePasovnaMatrika(PassovnaMatrika):
     def __init__(self, up, diag):
@@ -130,7 +133,8 @@ def main():
     print(d)
     print('////////////')
     print(c @ d)
-    print(a.mat_mul(b).getmatrix())
+    print((a * b).getmatrix())
+
 
 if __name__ == '__main__':
     main()
