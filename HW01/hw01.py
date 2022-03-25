@@ -1,10 +1,11 @@
 import numpy as np
 from scipy.linalg import lu
 
+
 class PassovnaMatrika():
     def __init__(self, up, diag, low) -> None:
         self.l = len(low)
-        self.u = len (up)
+        self.u = len(up)
         self.m = len(diag)
         self.n = self.l + self.u + 1
         self.up = up
@@ -12,7 +13,7 @@ class PassovnaMatrika():
         self.low = low
 
     def size(self):
-        return len(self.diag), len(self.diag)
+        return self.m, self.m
 
     def getmatrix(self):
         mtx = np.zeros((self.m, self.m))
@@ -75,9 +76,9 @@ class PassovnaMatrika():
         if i == j:
             return self.diag[i]
         elif i < j and j - i < self.n and self.u > 0:
-            return self.up[j - i - 1][j - i]
+            return self.up[j - i - 1][i]
         elif i > j and i - j < self.n and self.l > 0:
-            return self.low[i - j - 1][i - j]
+            return self.low[i - j - 1][j]
         else:
             return 0
 
@@ -85,11 +86,21 @@ class PassovnaMatrika():
         if i == j:
             self.diag[i] = e
         elif i < j and j - i < self.n and self.u > 0:
-            self.up[j - i - 1][j - i] = e
+            self.up[j - i - 1][i] = e
         elif i > j and i - j < self.n:
-            self.low[i - j - 1][i - j] = e
+            self.low[i - j - 1][j] = e
         else:
             print('Error. Operation not supported. Either index out of bounds or tt would no longer be a Band matrix.')
+
+    def mat_mul(self, b):
+        res = np.zeros(self.size())
+
+        for i in range(self.m):
+            for j in range(b.m):
+                for k in range(b.m):
+                    res[i][j] += self.getindex(i, k) * b[k, j]
+
+        return self.nptomatrika(res)
 
     def __getitem__(self, index):
         return self.getindex(index[0], index[1])
@@ -109,13 +120,17 @@ class SpodnjePasovnaMatrika(PassovnaMatrika):
 
 
 def main():
-    # a = ZgornjePasovnaMatrika([[2,2,2,2], [3,3,3], [4,4]], [1,1,1,1,1])
-    a = SpodnjePasovnaMatrika([10,10,10,10,10], [[2,2,2,2], [3,3,3], [4,4]])
+    a = ZgornjePasovnaMatrika([[4, 5]], [1,2,3])
+    b = SpodnjePasovnaMatrika([1,2,3],[[4, 5]])
 
-    l, u = a.lu()
+    c = a.getmatrix()
+    d = b.getmatrix()
 
-    print(l.low)
-
+    print(c)
+    print(d)
+    print('////////////')
+    print(c @ d)
+    print(a.mat_mul(b).getmatrix())
 
 if __name__ == '__main__':
     main()
