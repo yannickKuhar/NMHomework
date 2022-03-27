@@ -89,7 +89,7 @@ class PassovnaMatrika():
 
     def lu(self):
         """
-        PErform the LU decomposition on this matrix. First we construct a numpy matrix from our own an then use scipy's
+        Perform the LU decomposition on this matrix. First we construct a numpy matrix from our own an then use scipy's
         lu() method.
         :return: Matrices L and U in our format.
         """
@@ -120,9 +120,9 @@ class PassovnaMatrika():
         """
         if i == j:
             return self.diag[i]
-        elif i < j and j - i < self.n and self.u > 0:
+        elif i < j and j - i - 1 < self.u and self.u > 0:
             return self.up[j - i - 1][i]
-        elif i > j and i - j < self.n and self.l > 0:
+        elif i > j and i - j - 1 < self.l and self.l > 0:
             return self.low[i - j - 1][j]
         else:
             return 0
@@ -144,12 +144,13 @@ class PassovnaMatrika():
         """
         if i == j:
             self.diag[i] = e
-        elif i < j and j - i < self.n and self.u > 0:
+        elif i < j and j - i - 1 < self.u and self.u > 0:
             self.up[j - i - 1][i] = e
-        elif i > j and i - j < self.n:
+        elif i > j and i - j - 1 < self.l and self.l > 0:
             self.low[i - j - 1][j] = e
         else:
             print('Error. Operation not supported. Either index out of bounds or tt would no longer be a Band matrix.')
+            return None
 
     def mat_mul(self, b):
         """
@@ -227,11 +228,14 @@ def main():
     c = a.getmatrix()
     d = b.getmatrix()
 
-    print(c)
-    print(d)
-    print('////////////')
-    print(c @ d)
-    print((a * b).getmatrix())
+    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
+
+
+    # print(c)
+    # print(d)
+    # print('////////////')
+    # print(c @ d)
+    # print((a * b).getmatrix())
 
 
 if __name__ == '__main__':
