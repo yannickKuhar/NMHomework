@@ -60,7 +60,8 @@ class PassovnaMatrika():
         S = np.sum(np.abs(X), axis=1) - D
         return np.all(D > S)
 
-    def nptomatrika(self, x):
+    @staticmethod
+    def nptomatrika(x):
         """
         Convert numpy matrix to our format.
         :param x: A numpy matrix.
@@ -70,19 +71,19 @@ class PassovnaMatrika():
         d = list(np.diag(x))
         lwr = []
 
-        for i in range(1, self.n):
+        for i in range(1, len(x)):
             tmp_u = np.diag(x, i)
             tmp_l = np.diag(x, -i)
 
-            if np.all(tmp_u > 0):
+            if np.any(tmp_u > 0):
                 upr.append(list(tmp_u))
             
-            if np.all(tmp_l > 0):
+            if np.any(tmp_l > 0):
                 lwr.append(list(tmp_l))
 
-        if self.u > 0 and self.l == 0:
+        if len(upr) > 0 and len(lwr) == 0:
             return ZgornjePasovnaMatrika(upr, d)
-        elif self.u == 0 and self.l > 0:
+        elif len(upr) == 0 and len(lwr) > 0:
             return SpodnjePasovnaMatrika(d, lwr)
         else:
             return PassovnaMatrika(upr, d, lwr)
@@ -221,23 +222,43 @@ class SpodnjePasovnaMatrika(PassovnaMatrika):
         super().__init__([], diag, low)
 
 
+def desne_strani(s, d, z, l):
+    n = len(s) + 1
+    m = len(l) + 1
+    b = np.zeros(n * m)
+    b[1:n] -= s
+    b[n:-1] -= d
+    b[(-1 - n + 1) : -1] -= z
+    b[1:n] -= l
+    return b
+
+
 def main():
-    a = ZgornjePasovnaMatrika([[4, 5]], [1,2,3])
-    b = SpodnjePasovnaMatrika([1,2,3],[[4, 5]])
+    nx = 20
+    ny = 20
 
-    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
+    funs = [np.sin, lambda y: 0, np.sin, lambda y: 0]
 
-    c = a.getmatrix()
-    d = b.getmatrix()
+    a, b, c, d = 0, np.pi, 0, np.pi
 
-    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
+    Z0 = np.zeros((nx + 2, ny + 2))
 
+    x = np.linspace(a, b, nx + 2)
+    y = np.linspace(c, d, ny + 2)
 
-    # print(c)
-    # print(d)
-    # print('////////////')
-    # print(c @ d)
-    print((a / a).getmatrix())
+    Z0[:, 1] = list(map(funs[0], x))
+    Z0[-1, :] = np.array(list(map(funs[1], y)))
+    Z0[:, - 1] = np.array(list(map(funs[2], x)))
+    Z0[1, :] = np.array(list(map(funs[3], y)))
+
+    # print(Z0[:, 1])
+    # print(Z0[-1, :])
+    # print(Z0[:, - 1])
+    # print(Z0[1, :])
+
+    Z = PassovnaMatrika.nptomatrika(Z0)
+    b = desne_strani(Z0[2:-1-1, 1], Z0[-1, 2:-1-1],Z0[2:-1-1, -1], Z0[1, 2:-1-1])
+    print(Z0[2:-1-1, 1])
 
 
 if __name__ == '__main__':

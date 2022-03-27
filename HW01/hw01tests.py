@@ -17,6 +17,9 @@ B = np.array([[1, 5, 0],
 
 
 class TestMatrix(unittest.TestCase):
+    """
+    A class that runs a few basic tests.
+    """
 
     def test_get_index(self):
         for i in range(a.m):
