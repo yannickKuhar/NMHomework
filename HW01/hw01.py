@@ -97,7 +97,7 @@ class PassovnaMatrika():
         
         if self.dd(x):
             l, u = lu(x, permute_l=True)
-            print(l)
+            # print(l)
             return self.nptomatrika(l), self.nptomatrika(u)
         else:
             print('Error. Matrix is not diagonally dominant.')
@@ -174,7 +174,7 @@ class PassovnaMatrika():
         :param b: Matrix `b` of type PassovnaMatrika or its descendants.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
-        res = np.divide(self.getmatrix(), b.getmatrix)
+        res = np.linalg.solve(self.getmatrix(), b.getmatrix())
         return self.nptomatrika(res)
 
     def __getitem__(self, index):
@@ -225,6 +225,8 @@ def main():
     a = ZgornjePasovnaMatrika([[4, 5]], [1,2,3])
     b = SpodnjePasovnaMatrika([1,2,3],[[4, 5]])
 
+    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
+
     c = a.getmatrix()
     d = b.getmatrix()
 
@@ -235,7 +237,7 @@ def main():
     # print(d)
     # print('////////////')
     # print(c @ d)
-    # print((a * b).getmatrix())
+    print((a / a).getmatrix())
 
 
 if __name__ == '__main__':
