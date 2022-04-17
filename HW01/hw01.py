@@ -194,8 +194,23 @@ class PassovnaMatrika():
         :param b: Matrix `b` of type PassovnaMatrika or its descendants.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
-        res = np.linalg.solve(self.getmatrix(), b.getmatrix())
-        return self.nptomatrika(res)
+
+        x = b[:]
+        d = self.diag[:]
+        n = len(b)
+
+        for i in range(1, n):
+
+            l = self.low[0][i - 1] / d[i - 1]
+            d[i] -= l * self.up[0][i - 1]
+            x[i] -= l * x[i - 1]
+
+        x[n - 1] = x[n - 1] / d[n - 1]
+
+        for i in range(n - 2, -1, -1):
+            x[i] = (x[i] - x[i + 1] * self.up[0][i]) / d[i]
+
+        return x
 
     def __getitem__(self, index):
         """
@@ -253,34 +268,28 @@ def desne_strani(s, d, z, l):
 
 
 def main():
-    # nx = 20
-    # ny = 20
-    #
-    # funs = [np.sin, lambda y: 0, np.sin, lambda y: 0]
-    #
-    # a, b, c, d = 0, np.pi, 0, np.pi
-    #
-    # Z0 = np.zeros((nx + 2, ny + 2))
-    #
-    # x = np.linspace(a, b, nx + 2)
-    # y = np.linspace(c, d, ny + 2)
-    #
-    # Z0[:, 1] = list(map(funs[0], x))
-    # Z0[-1, :] = np.array(list(map(funs[1], y)))
-    # Z0[:, - 1] = np.array(list(map(funs[2], x)))
-    # Z0[1, :] = np.array(list(map(funs[3], y)))
+    nx = 20
+    ny = 20
 
-    # print(Z0[:, 1])
-    # print(Z0[-1, :])
-    # print(Z0[:, - 1])
-    # print(Z0[1, :])
+    funs = [np.sin, lambda y: 0, np.sin, lambda y: 0]
 
-    # Z = PassovnaMatrika.nptomatrika(Z0)
-    # b = desne_strani(Z0[2:-1-1, 1], Z0[-1, 2:-1-1],Z0[2:-1-1, -1], Z0[1, 2:-1-1])
-    # print(Z0[2:-1-1, 1])
+    a, b, c, d = 0, np.pi, 0, np.pi
 
-    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
-    print(a.dd())
+    Z0 = np.zeros((nx + 2, ny + 2))
+
+    x = np.linspace(a, b, nx + 2)
+    y = np.linspace(c, d, ny + 2)
+
+    Z0[:, 1] = list(map(funs[0], x))
+    Z0[-1, :] = np.array(list(map(funs[1], y)))
+    Z0[:, - 1] = np.array(list(map(funs[2], x)))
+    Z0[1, :] = np.array(list(map(funs[3], y)))
+    np.fill_diagonal(Z0, 4)
+
+    b = list(np.random.rand(nx + 2))
+    Z = PassovnaMatrika.nptomatrika(Z0)
+
+    print(Z / b)
 
 
 if __name__ == '__main__':
