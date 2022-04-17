@@ -1,9 +1,8 @@
 import numpy as np
-from scipy.linalg import lu
 
 
 class PassovnaMatrika():
-    def __init__(self, up, diag, low):
+    def __init__(self, low, diag, up):
         self.l = len(low)
         self.u = len(up)
         self.m = len(diag)
@@ -47,7 +46,7 @@ class PassovnaMatrika():
         
         return mtx
     
-    def dd(self, X):
+    def dd(self):
         """
         Check if a numpy matrix is diagonally dominant.
 
@@ -56,9 +55,18 @@ class PassovnaMatrika():
         :param X: A numpy matrix constructed from our custom format.
         :return: True if it is diagonally dominant anf False if not.
         """
-        D = np.diag(np.abs(X))
-        S = np.sum(np.abs(X), axis=1) - D
-        return np.all(D > S)
+
+        if self.diag[0] < self.up[0][0]:
+            return False
+
+        for i in range(1, self.n - 1):
+            if self.diag[i] < self.up[0][i] + self.low[0][i]:
+                return False
+
+        if self.diag[self.n - 1] < self.low[0][self.l - 1]:
+            return False
+
+        return True
 
     @staticmethod
     def nptomatrika(x):
@@ -95,11 +103,17 @@ class PassovnaMatrika():
         :return: Matrices L and U in our format.
         """
         x = self.getmatrix()
-        
+
+        lsp = self.low[0]
+        ud = self.diag
+
         if self.dd(x):
-            l, u = lu(x, permute_l=True)
-            # print(l)
-            return self.nptomatrika(l), self.nptomatrika(u)
+
+            for i in range(1, self.n):
+                lsp[i - 1] = self.low[0][i - 1] / ud[i - 1]
+                ud[i] = ud[i] - lsp[i - 1] * self.up[0][i - 1]
+
+            return SpodnjePasovnaMatrika([lsp], list(np.ones(self.n))), ZgornjePasovnaMatrika(ud, self.up)
         else:
             print('Error. Matrix is not diagonally dominant.')
             return None
@@ -160,14 +174,19 @@ class PassovnaMatrika():
         :param b: Matrix `b` of type PassovnaMatrika or its descendants.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
-        res = np.zeros(self.size())
+        res = np.zeros(self.n)
 
-        for i in range(self.m):
-            for j in range(b.m):
-                for k in range(b.m):
-                    res[i][j] += self.getindex(i, k) * b[k, j]
+        res[0] = self.diag[0] * b[0] + self.up[0][0] * b[1]
 
-        return self.nptomatrika(res)
+        print(list(range(1, self.n - 1)))
+
+        for i in range(1, self.n - 1):
+            print(i)
+            res[i] = self.getindex(i, i - 1) * b[i - 1] + self.diag[i] * b[i] + self.getindex(i, i + 1) * b[i + 1]
+
+        res[self.n - 1] = self.low[0][self.n - 2] * b[self.n - 2] + self.diag[self.n - 1] * b[self.n - 1]
+
+        return res
 
     def mat_div(self, b):
         """
@@ -213,13 +232,13 @@ class PassovnaMatrika():
 
 
 class ZgornjePasovnaMatrika(PassovnaMatrika):
-    def __init__(self, up, diag):
-        super().__init__(up, diag, [])
+    def __init__(self, diag, up):
+        super().__init__([], diag, up)
 
 
 class SpodnjePasovnaMatrika(PassovnaMatrika):
-    def __init__(self, diag, low):
-        super().__init__([], diag, low)
+    def __init__(self, low, diag):
+        super().__init__(low, diag, [])
 
 
 def desne_strani(s, d, z, l):
@@ -234,31 +253,34 @@ def desne_strani(s, d, z, l):
 
 
 def main():
-    nx = 20
-    ny = 20
-
-    funs = [np.sin, lambda y: 0, np.sin, lambda y: 0]
-
-    a, b, c, d = 0, np.pi, 0, np.pi
-
-    Z0 = np.zeros((nx + 2, ny + 2))
-
-    x = np.linspace(a, b, nx + 2)
-    y = np.linspace(c, d, ny + 2)
-
-    Z0[:, 1] = list(map(funs[0], x))
-    Z0[-1, :] = np.array(list(map(funs[1], y)))
-    Z0[:, - 1] = np.array(list(map(funs[2], x)))
-    Z0[1, :] = np.array(list(map(funs[3], y)))
+    # nx = 20
+    # ny = 20
+    #
+    # funs = [np.sin, lambda y: 0, np.sin, lambda y: 0]
+    #
+    # a, b, c, d = 0, np.pi, 0, np.pi
+    #
+    # Z0 = np.zeros((nx + 2, ny + 2))
+    #
+    # x = np.linspace(a, b, nx + 2)
+    # y = np.linspace(c, d, ny + 2)
+    #
+    # Z0[:, 1] = list(map(funs[0], x))
+    # Z0[-1, :] = np.array(list(map(funs[1], y)))
+    # Z0[:, - 1] = np.array(list(map(funs[2], x)))
+    # Z0[1, :] = np.array(list(map(funs[3], y)))
 
     # print(Z0[:, 1])
     # print(Z0[-1, :])
     # print(Z0[:, - 1])
     # print(Z0[1, :])
 
-    Z = PassovnaMatrika.nptomatrika(Z0)
-    b = desne_strani(Z0[2:-1-1, 1], Z0[-1, 2:-1-1],Z0[2:-1-1, -1], Z0[1, 2:-1-1])
-    print(Z0[2:-1-1, 1])
+    # Z = PassovnaMatrika.nptomatrika(Z0)
+    # b = desne_strani(Z0[2:-1-1, 1], Z0[-1, 2:-1-1],Z0[2:-1-1, -1], Z0[1, 2:-1-1])
+    # print(Z0[2:-1-1, 1])
+
+    a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
+    print(a.dd())
 
 
 if __name__ == '__main__':
