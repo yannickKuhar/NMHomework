@@ -174,10 +174,7 @@ class PassovnaMatrika():
 
         res[0] = self.diag[0] * b[0] + self.up[0][0] * b[1]
 
-        print(list(range(1, self.n - 1)))
-
         for i in range(1, self.n - 1):
-            print(i)
             res[i] = self.getindex(i, i - 1) * b[i - 1] + self.diag[i] * b[i] + self.getindex(i, i + 1) * b[i + 1]
 
         res[self.n - 1] = self.low[0][self.n - 2] * b[self.n - 2] + self.diag[self.n - 1] * b[self.n - 1]

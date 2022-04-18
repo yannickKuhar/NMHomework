@@ -1,11 +1,13 @@
 import unittest
 import numpy as np
 from scipy.linalg import lu
-from hw01 import PassovnaMatrika, ZgornjePasovnaMatrika, SpodnjePasovnaMatrika
+from hw01 import PassovnaMatrika
 
 
 a = PassovnaMatrika([[1, 1]], [5, 5, 5], [[1, 1]])
 b = PassovnaMatrika([[5, 5]], [1, 1, 1], [[5, 5]])
+
+c = np.array([1, 2, 3])
 
 A = np.array([[5, 1, 0],
               [1, 5, 1],
@@ -47,10 +49,10 @@ class TestMatrix(unittest.TestCase):
         self.assertEqual(result, None)
 
     def test_mat_mul(self):
-        self.assertEqual(np.all((a * b).getmatrix() == (A @ B)), True)
+        self.assertEqual(np.all((a * c) == (A.dot(c))), True)
 
     def test_mat_div(self):
-        self.assertEqual(np.all((a / a).getmatrix() == (np.linalg.solve(A, A))), True)
+        self.assertEqual(np.all((a / c) == (np.linalg.solve(A, c))), True)
 
 
 if __name__ == '__main__':
