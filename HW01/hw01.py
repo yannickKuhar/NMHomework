@@ -48,22 +48,21 @@ class PassovnaMatrika():
     
     def dd(self):
         """
-        Check if a numpy matrix is diagonally dominant.
+        Check if a tridiagonal matrix is diagonally dominant, following the equation:
 
-        Source: https://stackoverflow.com/questions/43074634/checking-if-a-matrix-is-diagonally-dominant-in-python
+        https://en.wikipedia.org/wiki/Diagonally_dominant_matrix
 
-        :param X: A numpy matrix constructed from our custom format.
         :return: True if it is diagonally dominant anf False if not.
         """
 
-        if self.diag[0] < self.up[0][0]:
+        if abs(self.diag[0]) < abs(self.up[0][0]):
             return False
 
         for i in range(1, self.n - 1):
-            if self.diag[i] < self.up[0][i] + self.low[0][i]:
+            if abs(self.diag[i]) < abs(self.up[0][i] + self.low[0][i]):
                 return False
 
-        if self.diag[self.n - 1] < self.low[0][self.l - 1]:
+        if abs(self.diag[self.n - 1]) < abs(self.low[0][self.l - 1]):
             return False
 
         return True
@@ -98,17 +97,14 @@ class PassovnaMatrika():
 
     def lu(self):
         """
-        Perform the LU decomposition on this matrix. First we construct a numpy matrix from our own an then use scipy's
-        lu() method.
+        Perform the LU decomposition on this tridiagonal matrix based on the algorithm from the labs.
         :return: Matrices L and U in our format.
         """
-        x = self.getmatrix()
 
         lsp = self.low[0]
         ud = self.diag
 
-        if self.dd(x):
-
+        if self.dd():
             for i in range(1, self.n):
                 lsp[i - 1] = self.low[0][i - 1] / ud[i - 1]
                 ud[i] = ud[i] - lsp[i - 1] * self.up[0][i - 1]
@@ -169,9 +165,9 @@ class PassovnaMatrika():
 
     def mat_mul(self, b):
         """
-        Initialises a numpy array full of zeroes than uses the standard matrix multiplication algorithm tro construct
-        the result. Finally we convert the result form numpy array to one of our custom types.
-        :param b: Matrix `b` of type PassovnaMatrika or its descendants.
+        Initialises a numpy array full of zeroes than uses the algorithm that multiplies a tridiagonal
+        matrix with vector `b`.
+        :param b: Vector `b` of type list.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
         res = np.zeros(self.n)
@@ -190,8 +186,8 @@ class PassovnaMatrika():
 
     def mat_div(self, b):
         """
-        Constructs numpy matrices form this matrix and matrix `b` and then uses numpy's matrix division method.
-        :param b: Matrix `b` of type PassovnaMatrika or its descendants.
+        Implements the algorithm that divides a tridiagonal matrix with vector `b`.
+        :param b: Vector `b` of type list.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
 
@@ -232,7 +228,7 @@ class PassovnaMatrika():
     def __mul__(self, b):
         """
         Magic method that enables the use of `a * b` multiplication format.
-        :param b: Matrix `b` of type PassovnaMatrika or its descendants.
+        :param b: Vector `b` of type list.
         :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
         return self.mat_mul(b)
@@ -240,7 +236,7 @@ class PassovnaMatrika():
     def __truediv__(self, b):
         """
         Magic method that enables the use of `a / b` division format.
-        :param b: Matrix `b` of type PassovnaMatrika or its descendants.
+        :param b: Vector `b` of type list.
         :return: The matrix quotient of this matrix and `b` of type PassovnaMatrika or its descendants.
         """
         return self.mat_div(b)
@@ -256,15 +252,15 @@ class SpodnjePasovnaMatrika(PassovnaMatrika):
         super().__init__(low, diag, [])
 
 
-def desne_strani(s, d, z, l):
-    n = len(s) + 1
-    m = len(l) + 1
-    b = np.zeros(n * m)
-    b[1:n] -= s
-    b[n:-1] -= d
-    b[(-1 - n + 1) : -1] -= z
-    b[1:n] -= l
-    return b
+# def desne_strani(s, d, z, l):
+#     n = len(s) + 1
+#     m = len(l) + 1
+#     b = np.zeros(n * m)
+#     b[1:n] -= s
+#     b[n:-1] -= d
+#     b[(-1 - n + 1) : -1] -= z
+#     b[1:n] -= l
+#     return b
 
 
 def main():
@@ -284,7 +280,7 @@ def main():
     Z0[-1, :] = np.array(list(map(funs[1], y)))
     Z0[:, - 1] = np.array(list(map(funs[2], x)))
     Z0[1, :] = np.array(list(map(funs[3], y)))
-    np.fill_diagonal(Z0, 4)
+    np.fill_diagonal(Z0, -4)
 
     b = list(np.random.rand(nx + 2))
     Z = PassovnaMatrika.nptomatrika(Z0)
