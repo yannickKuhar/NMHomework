@@ -1,3 +1,5 @@
+import numpy as np
+
 class RazprsenaMatrika():
     def __init__(self, V, I):
         self.V = V
@@ -43,7 +45,7 @@ class RazprsenaMatrika():
             for i in self.I[k]:
                 res[k] += b[i] * self.V[k][self.I[k].index(i)]
 
-        return res
+        return np.array(res)
 
     def firstindex(self, i):
         return self.I[i][0]
@@ -55,16 +57,51 @@ class RazprsenaMatrika():
         """
         Magic method that enables the use of `a * b` multiplication format.
         :param b: Vector `b` of type list.
-        :return: The matrix product of this matrix and `b` of type RazprsenaMatrika or its descendants.
+        :return: The matrix product of this matrix and `b` of type RazprsenaMatrika.
         """
         return self.mat_mul(b)
 
 
-def main():
-    a = RazprsenaMatrika([[1], [3], [2]], [[1], [2], [0]])
-    b = [1, 1, 1]
+def conj_grad(A, b, x):
+    r = b - A * x
+    p = r
+    rsold = r.T @ r
+    
+    for _ in b:
+        Ap = A * p
+        alpha = rsold / (p.T @ Ap)
+        
+        x = x + alpha * p
+        r = r - alpha * Ap
+        
+        rsnew = r.T @ r
+        
+        if rsnew < 1e-10:
+            return x
 
-    print(a * b)
+        p = r + (rsnew / rsold) * p
+        rsold = rsnew
+
+    return x
+
+
+def main():
+    A = np.array([[2, 1, 0, 0], [0, 2, 0, 0], [0, 1, 3, 0], [0, 0, 0, 1]])
+
+    print(A)
+
+    B = np.array([3, 3, 3, 3])
+    print(np.linalg.solve(A, B))
+
+
+    a = RazprsenaMatrika([[2, 1], [2], [1, 3], [1]], [[0, 1], [1], [1, 2], [3]])
+    b = [3, 3, 3, 3]
+
+    # print(a * b)
+
+    x = np.array([1, 1, 1, 1])
+    x = conj_grad(a, b, x)
+    print(x)
 
 
 if __name__ == '__main__':

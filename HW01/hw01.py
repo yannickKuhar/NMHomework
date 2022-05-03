@@ -116,7 +116,7 @@ class PassovnaMatrika():
             
     def getindex(self, i, j):
         """
-        Method that sets element of index `i` and 'j` to `e`. The new indecies are calculated as:
+        Method that gets the element on index `i` and 'j`. The indecies are calculated as:
         i = j - i - 1
         j = i,
             for the part above the diagonal and:
@@ -126,7 +126,6 @@ class PassovnaMatrika():
 
         :param i: Row index.
         :param j: column index.
-        :param e: The value of the element we wish to set.
         :return:
         """
         if i == j:
