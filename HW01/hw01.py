@@ -126,7 +126,7 @@ class PassovnaMatrika():
 
         :param i: Row index.
         :param j: column index.
-        :return:
+        :return: The element on index (i, j), if it exists, else 0.
         """
         if i == j:
             return self.diag[i]
@@ -164,10 +164,9 @@ class PassovnaMatrika():
 
     def mat_mul(self, b):
         """
-        Initialises a numpy array full of zeroes than uses the algorithm that multiplies a tridiagonal
-        matrix with vector `b`.
+        Implements the algorithm that multiplies a tridiagonal matrix with vector `b`.
         :param b: Vector `b` of type list.
-        :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
+        :return: The matrix product of this matrix and `b`.
         """
         res = np.zeros(self.n)
 
@@ -184,7 +183,7 @@ class PassovnaMatrika():
         """
         Implements the algorithm that divides a tridiagonal matrix with vector `b`.
         :param b: Vector `b` of type list.
-        :return: The matrix product of this matrix and `b` of type PassovnaMatrika or its descendants.
+        :return: The matrix quotient of this matrix and `b`.
         """
 
         x = b[:]

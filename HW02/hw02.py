@@ -6,6 +6,12 @@ class RazprsenaMatrika():
         self.I = I
 
     def getindex(self, i, j):
+        """
+        Method that gets the element on index `i` and 'j`.
+        :param i: Row index.
+        :param j: column index.
+        :return: The element on index (i, j), if it exists, else 0.
+        """
         return self.V[i][self.I[i].index(j)] if j in self.I[i] else 0
 
     def __getitem__(self, index):
@@ -17,6 +23,11 @@ class RazprsenaMatrika():
         return self.getindex(index[0], index[1])
 
     def setindex(self, i, j, e):
+        """
+        Sets the the element on index (i, j) to element `i`. If the index
+        already exists in matrix I the vale of the elemenit is replaced if 
+        not it is inserted into its proper place.
+        """
         if j in self.I[i]:
             self.V[i][self.I[i].index(j)] = e
         else:
@@ -39,6 +50,11 @@ class RazprsenaMatrika():
         self.setindex(index[0], index[1], e)
 
     def mat_mul(self, b):
+        """
+        Implements the algorithm that multiplies a sparse matrix with vector `b`.
+        :param b: Vector `b` of type list.
+        :return: The matrix product of this matrix and `b`.
+        """
         res = [0] * len(b)
 
         for k in range(len(self.I)):
@@ -48,9 +64,19 @@ class RazprsenaMatrika():
         return np.array(res)
 
     def firstindex(self, i):
+        """
+        Returns the 1st index in row `i`.
+        :param i: The index of a row.
+        :return: The 1st index of ith row in matrx I. 
+        """
         return self.I[i][0]
 
     def lastindex(self, i):
+        """
+        Returns the last index in row `i`.
+        :param i: The index of a row.
+        :return: The last index of ith row in matrx I. 
+        """
         return self.I[i][-1]
 
     def __mul__(self, b):
@@ -63,6 +89,16 @@ class RazprsenaMatrika():
 
 
 def conj_grad(A, b, x):
+    """
+    Implements the Conjugate gradient method. Vector `r` is the difference between te intial guess and the solution
+    with this method iteratively the gram schimd method is applied on vector `r` so it becomes more and more orthogonal
+    while at the same time the movements are applied to `x`, our intial guess. At the end `r` is as close to 0 as can be
+    and `x` as close to the solution.
+    :param A: The matrix in our equation system Ax = b. 
+    :param b: The solution vector.
+    :param x: The intitial guess.
+    :return x: The optimised vector `x`.
+    """
     r = b - A * x
     p = r
     rsold = r.T @ r
