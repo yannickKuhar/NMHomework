@@ -87,17 +87,13 @@ def conj_grad(A, b, x):
 
 def main():
     A = np.array([[2, 1, 0, 0], [0, 2, 0, 0], [0, 1, 3, 0], [0, 0, 0, 1]])
-
-    print(A)
-
+    
     B = np.array([3, 3, 3, 3])
     print(np.linalg.solve(A, B))
 
 
     a = RazprsenaMatrika([[2, 1], [2], [1, 3], [1]], [[0, 1], [1], [1, 2], [3]])
     b = [3, 3, 3, 3]
-
-    # print(a * b)
 
     x = np.array([1, 1, 1, 1])
     x = conj_grad(a, b, x)
