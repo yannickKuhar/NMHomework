@@ -94,6 +94,9 @@ def conj_grad(A, b, x):
     with this method iteratively the gram schimd method is applied on vector `r` so it becomes more and more orthogonal
     while at the same time the movements are applied to `x`, our intial guess. At the end `r` is as close to 0 as can be
     and `x` as close to the solution.
+
+    https://en.wikipedia.org/wiki/Conjugate_gradient_method
+
     :param A: The matrix in our equation system Ax = b. 
     :param b: The solution vector.
     :param x: The intitial guess.
